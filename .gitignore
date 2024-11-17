@@ -3,3 +3,8 @@ from tkinter import ttk
 from tkinter import messagebox
 import pymysql
 
+
+win = tk.Tk()
+win.geometry("1920x1080+0+0")
+win.title("Student Information System")
+he
