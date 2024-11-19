@@ -7,4 +7,13 @@ import pymysql
 win = tk.Tk()
 win.geometry("1920x1080+0+0")
 win.title("Student Information System")
-he
+
+title_label = tk.Label(win,text="Student Information System",font=("Arial",27,"bold"),border=5,relief=tk.GROOVE,bg="black",foreground="White")
+title_label.pack(side=tk.TOP,fill=tk.X)
+
+detail_frame=tk.LabelFrame(win,text="Enter Details",font=("Arial",24),bd=5,relief=tk.GROOVE,bg="Lightgrey",foreground="Black")
+detail_frame.place(x=20,y=90,width=550,height=720)
+
+data_frame=tk.Frame(win,bd=5,relief=tk.GROOVE,bg="Lightgrey")
+data_frame.place(x=620,y=90,width=880,height=720)
+
