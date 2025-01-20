@@ -3,17 +3,295 @@ from tkinter import ttk
 from tkinter import messagebox
 import pymysql
 
-
 win = tk.Tk()
-win.geometry("1920x1080+0+0")
+win.geometry("1269x766+0+0")
 win.title("Student Information System")
+
+win.config(bg="White")
 
 title_label = tk.Label(win,text="Student Information System",font=("Arial",27,"bold"),border=5,relief=tk.GROOVE,bg="black",foreground="White")
 title_label.pack(side=tk.TOP,fill=tk.X)
 
-detail_frame=tk.LabelFrame(win,text="Enter Details",font=("Arial",24),bd=5,relief=tk.GROOVE,bg="Lightgrey",foreground="Black")
-detail_frame.place(x=20,y=90,width=550,height=720)
+detail_frame=tk.LabelFrame(win,text="Enter Details",font=("Arial",20),bd=5,relief=tk.GROOVE,bg="Lightgrey",foreground="Black")
+detail_frame.place(x=20,y=70,width=550,height=690)
 
 data_frame=tk.Frame(win,bd=5,relief=tk.GROOVE,bg="Lightgrey")
-data_frame.place(x=620,y=90,width=880,height=720)
+data_frame.place(x=620,y=70,width=640,height=690)
 
+#========= VARIABLES ========#
+
+Enrollment_var=tk.StringVar()
+name_var=tk.StringVar()
+class_var=tk.StringVar()
+section_var=tk.StringVar()
+course_var=tk.StringVar()
+contact_var=tk.StringVar()
+father_var=tk.StringVar()
+address_var=tk.StringVar()
+gender_var=tk.StringVar()
+dob_var=tk.StringVar()
+
+search_by=tk.StringVar()
+
+#============================#
+
+#======== ENTRY ========#
+
+Enrollment_lbl = tk.Label(detail_frame,text="Enrollment No: ",font=("Arial,17"),bg="Lightgrey")
+Enrollment_lbl.grid(row=0,column=0,padx=10,pady=10)
+
+Enrollment_ent = tk.Entry(detail_frame,bd=3,font=("Arial,17"),width=30,textvariable=Enrollment_var)
+Enrollment_ent.grid(row=0,column=1,padx=10,pady=10)
+
+name_lbl = tk.Label(detail_frame,text="Name: ",font=("Arial,17"),bg="Lightgrey")
+name_lbl.grid(row=1,column=0,padx=10,pady=10)
+
+name_ent = tk.Entry(detail_frame,bd=3,font=("Arial,17"),width=30,textvariable=name_var)
+name_ent.grid(row=1,column=1,padx=10,pady=10)
+
+class_lbl = tk.Label(detail_frame,text="Class: ",font=("Arial,17"),bg="Lightgrey")
+class_lbl.grid(row=2,column=0,padx=10,pady=10)
+
+class_ent = tk.Entry(detail_frame,bd=3,font=("Arial,17"),width=30,textvariable=class_var)
+class_ent.grid(row=2,column=1,padx=10,pady=10)
+
+section_lbl = tk.Label(detail_frame,text="Section: ",font=("Arial,17"),bg="Lightgrey")
+section_lbl.grid(row=3,column=0,padx=10,pady=10)
+
+section_ent = tk.Entry(detail_frame,bd=3,font=("Arial,17"),width=30,textvariable=section_var)
+section_ent.grid(row=3,column=1,padx=10,pady=10)
+
+course_lbl = tk.Label(detail_frame,text="Course: ",font=("Arial,17"),bg="Lightgrey")
+course_lbl.grid(row=4,column=0,padx=10,pady=10)
+
+course_ent = tk.Entry(detail_frame,bd=3,font=("Arial,17"),width=30,textvariable=course_var)
+course_ent.grid(row=4,column=1,padx=10,pady=10)
+
+contact_lbl = tk.Label(detail_frame,text="Contact: ",font=("Arial,17"),bg="Lightgrey")
+contact_lbl.grid(row=5,column=0,padx=10,pady=10)
+
+contact_ent = tk.Entry(detail_frame,bd=3,font=("Arial,17"),width=30,textvariable=contact_var)
+contact_ent.grid(row=5,column=1,padx=10,pady=10)
+
+father_lbl = tk.Label(detail_frame,text="Father's Name: ",font=("Arial,17"),bg="Lightgrey")
+father_lbl.grid(row=6,column=0,padx=10,pady=10)
+
+father_ent = tk.Entry(detail_frame,bd=3,font=("Arial,17"),width=30,textvariable=father_var)
+father_ent.grid(row=6,column=1,padx=10,pady=10)
+
+address_lbl = tk.Label(detail_frame,text="Address: ",font=("Arial,17"),bg="Lightgrey")
+address_lbl.grid(row=7,column=0,padx=10,pady=10)
+
+address_ent = tk.Entry(detail_frame,bd=3,font=("Arial,17"),width=30,textvariable=address_var)
+address_ent.grid(row=7,column=1,padx=10,pady=10)
+
+gender_lbl = tk.Label(detail_frame, text="Gender: ", font=('Arial', 17),bg="Lightgrey")
+gender_lbl.grid(row=8, column=0, padx=10, pady=10)
+
+gender_ent = ttk.Combobox(detail_frame, font=('Arial', 15),state="readonly",width=29,textvariable=gender_var)
+gender_ent['values'] = ("Male", "Female", "Others")
+gender_ent.grid(row=8, column=1, padx=10, pady=10)
+
+dob_lbl = tk.Label(detail_frame,text="Date of Birth: ",font=("Arial,17"),bg="Lightgrey")
+dob_lbl.grid(row=9,column=0,padx=10,pady=10)
+
+dob_ent = tk.Entry(detail_frame,bd=3,font=("Arial,17"),width=30,textvariable=dob_var)
+dob_ent.grid(row=9,column=1,padx=10,pady=10)
+
+#=========================#
+
+#=======FUNCTIONS=========#
+
+def fetch_data():
+    student_table.delete(*student_table.get_children())
+    conn=pymysql.connect(host="localhost",user="root",password="",database="studentinfo")
+    curr=conn.cursor()
+    curr.execute("SELECT * FROM data")
+    rows=curr.fetchall()
+    for row in rows:
+        student_table.insert('',tk.END,values=row)
+    conn.close()
+
+def add_func():
+    if Enrollment_var.get() == "" or name_var.get() == "" or class_var.get() == "" or section_var.get() == "" or course_var.get() == "" or contact_var.get() == "" or father_var.get() == "" or address_var.get() == "" or gender_var.get() == "" or dob_var.get() == "":
+        messagebox.showerror("Error!","Please fill all the fields")
+    else:
+        conn = pymysql.connect(host="localhost",user="root",password="",database="studentinfo")
+        curr=conn.cursor()
+        curr.execute("SELECT * FROM data WHERE Enrollment=%s", (Enrollment_var.get(),))
+        existing_record = curr.fetchone()
+        if existing_record:
+            messagebox.showwarning("Warning", "Enrollment number already exists!")
+        else:
+            curr.execute("INSERT INTO data VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",(Enrollment_var.get(),name_var.get(),class_var.get(),section_var.get(),course_var.get(),contact_var.get(),father_var.get(),address_var.get(),gender_var.get(),dob_var.get()))
+            conn.commit()
+            clear()
+            fetch_data()
+            messagebox.showinfo("Success", "Record Added Successfully!")
+    conn.close()
+
+
+def get_cursor(event):
+    cursor_row=student_table.focus()
+    content=student_table.item(cursor_row)
+    row=content['values']
+    Enrollment_var.set(row[0])
+    name_var.set(row[1])
+    class_var.set(row[2])
+    section_var.set(row[3])
+    course_var.set(row[4])
+    contact_var.set(row[5])
+    father_var.set(row[6])
+    address_var.set(row[7])
+    gender_var.set(row[8])
+    dob_var.set(row[9])
+
+def clear():
+    Enrollment_var.set("")
+    name_var.set("")
+    class_var.set("")
+    section_var.set("")
+    course_var.set("")
+    contact_var.set("")
+    father_var.set("")
+    address_var.set("")
+    gender_var.set("")
+    dob_var.set("")
+
+def update_func():
+    if Enrollment_var.get() == "":
+        messagebox.showerror("Error!", "Enrollment No is required for update!")
+        return
+
+    conn = pymysql.connect(host="localhost", user="root", password="", database="studentinfo")
+    curr = conn.cursor()
+
+    try:
+        curr.execute("""UPDATE data SET Name=%s, Class=%s, Section=%s, Course=%s, Contact=%s, Father=%s, Address=%s, Gender=%s, DOB=%s WHERE Enrollment=%s """, (name_var.get(), class_var.get(), section_var.get(), course_var.get(), contact_var.get(), father_var.get(), address_var.get(), gender_var.get(), dob_var.get(), Enrollment_var.get()))
+        conn.commit()
+        messagebox.showinfo("Success", "Record updated successfully")
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred: {str(e)}")
+    finally:
+        clear()
+        fetch_data()
+    conn.close()
+
+def delete_func():
+    if Enrollment_var.get() == "":
+        messagebox.showerror("Error!", "Enrollment No is required for deletion!")
+        return
+
+    conn = pymysql.connect(host="localhost", user="root", password="", database="studentinfo")
+    curr = conn.cursor()
+    curr.execute("DELETE FROM data WHERE Enrollment=%s", (Enrollment_var.get(),))
+    conn.commit()
+    conn.close()
+    clear()
+    fetch_data()
+    conn.close()
+    
+    messagebox.showinfo("Success", "Record deleted successfully!")
+
+def search_func(enrollment_no):
+    conn = pymysql.connect(host="localhost", user="root", password="", database="studentinfo")
+    curr = conn.cursor()
+    curr.execute("SELECT * FROM data WHERE Enrollment=%s", (enrollment_no,))
+    row = curr.fetchone()
+    if row:
+        student_table.delete(*student_table.get_children())
+        student_table.insert('', tk.END, values=row)
+    else:
+        messagebox.showinfo("Not Found", "No student found with that Enrollment No.")
+    conn.close()
+
+
+#=========================#
+
+#======= BUTTONS =========#
+
+btn_frame = tk.Frame(detail_frame,bg="Lightgrey",bd=5,relief=tk.GROOVE)
+btn_frame.place(x=20,y=547,width=500,height=90)
+
+add_btn=tk.Button(btn_frame,bg="Lightgrey",text="Add",bd=2,font=("Arial",13),width=10,command=add_func)
+add_btn.grid(row=0,column=0,padx=10,pady=22)
+
+update_btn=tk.Button(btn_frame,bg="Lightgrey",text="Update",bd=2,font=("Arial",13),width=10,command=update_func)
+update_btn.grid(row=0,column=1,padx=10,pady=22)
+
+delete_btn=tk.Button(btn_frame,bg="Lightgrey",text="Delete",bd=2,font=("Arial",13),width=10,command=delete_func)
+delete_btn.grid(row=0,column=2,padx=10,pady=22)
+
+clear_btn=tk.Button(btn_frame,bg="Lightgrey",text="Clear",bd=2,font=("Arial",13),width=10,command=clear)
+clear_btn.grid(row=0,column=3,padx=10,pady=22)
+
+#==========================#
+
+#======== SEARCH ==========#
+
+search_frame = tk.Frame(data_frame, bg="Lightgrey", bd=5, relief=tk.GROOVE)
+search_frame.pack(side=tk.TOP, fill=tk.X)
+
+search_lbl = tk.Label(search_frame, text="Enrollment No: ", bg="Lightgrey", font=("Arial", 13))
+search_lbl.grid(row=0, column=0, padx=10, pady=10)
+
+search_entry = tk.Entry(search_frame, bd=3, font=("Arial", 11), width=25)
+search_entry.grid(row=0, column=1, padx=10, pady=10)
+
+search_btn = tk.Button(search_frame, text="Search", bd=2, font=("Arial", 11), width=10, bg="Lightgrey", command=lambda: search_func(search_entry.get()))
+search_btn.grid(row=0, column=2, padx=10, pady=10)
+
+showall_btn = tk.Button(search_frame, text="Show All", bd=2, font=("Arial", 11), width=10, bg="Lightgrey", command=fetch_data)
+showall_btn.grid(row=0, column=3, padx=10, pady=10)
+
+#==========================#
+
+#======== DATABASE FRAME ========#
+
+main_frame = tk.Frame(data_frame,bg="Lightgrey",bd=5,relief=tk.GROOVE)
+main_frame.pack(fill=tk.BOTH,expand=True)
+
+y_scroll=tk.Scrollbar(main_frame,orient=tk.VERTICAL)
+x_scroll=tk.Scrollbar(main_frame,orient=tk.HORIZONTAL)
+
+student_table=ttk.Treeview(main_frame,columns=("Enrollment","Name","Class","Section","Course","Contact","Father","Address","Gender","DOB"),yscrollcommand=y_scroll.set,xscrollcommand=x_scroll.set)
+
+y_scroll.config(command=student_table.yview)
+x_scroll.config(command=student_table.xview)
+
+y_scroll.pack(side=tk.RIGHT,fill=tk.Y)
+x_scroll.pack(side=tk.BOTTOM,fill=tk.X)
+
+student_table.heading("Enrollment",text="Enrollment")
+student_table.heading("Name",text="Name")
+student_table.heading("Class",text="Class")
+student_table.heading("Section",text="Section")
+student_table.heading("Course",text="Course")
+student_table.heading("Contact",text="Contact")
+student_table.heading("Father",text="Father")
+student_table.heading("Address",text="Address")
+student_table.heading("Gender",text="Gender")
+student_table.heading("DOB",text="DOB")
+
+student_table['show'] = 'headings'
+
+student_table.column("Enrollment",width=100)
+student_table.column("Name",width=100)
+student_table.column("Class",width=100)
+student_table.column("Section",width=100)
+student_table.column("Course",width=100)
+student_table.column("Contact",width=100)
+student_table.column("Father",width=100)
+student_table.column("Address",width=150)
+student_table.column("Gender",width=100)
+student_table.column("DOB",width=100)
+
+student_table.pack(fill=tk.BOTH,expand=True)
+
+fetch_data()
+
+student_table.bind("<ButtonRelease-1>",get_cursor)
+
+#==========================#
+
+win.mainloop()
